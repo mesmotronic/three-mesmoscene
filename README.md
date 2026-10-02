@@ -1,10 +1,10 @@
-# COPPER OVERDRIVE
+# Welcome to the Mesmoscene
 
 An Atari ST / Amiga style cracktro in your browser. It's built with three.js, WebGPU and TSL, and runs as a ~103 second loop with a synthesised soundtrack that drives every effect.
 
 ```sh
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Then open the URL Vite prints and click (or press Space) to start. Headphones are recommended. The demo contains flashing lights.

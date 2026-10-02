@@ -26,12 +26,13 @@ const TEXT = {
   intro1: 'THE YEAR IS 1993... OR IS IT?',
   intro2: 'WEBGPU + TSL + THREE.JS',
   presents: 'PRESENTS',
-  title: 'COPPER OVERDRIVE',
+  welcome: 'WELCOME TO THE',
+  title: 'MESMOSCENE',
   plasma: 'YO!!! MESMOTRONIC IS BACK WITH A NEW CRACKTRO... 100% REALTIME WEBGPU + TSL, EVERY SOUND SYNTHESISED LIVE!!!',
   boing: 'THE BOING BALL LIVES!!! RESPECT TO THE AMIGA CREW OF 1984... NOW BOUNCING ON EVERY KICK DRUM!!!',
   dots1: '32768 DOTS',
   dots2: 'ON THE GPU',
-  glenz: 'GLENZ VECTORS! XOR ROTOZOOMER! TWISTERS! JUST LIKE MOM USED TO CODE... IN A SHADER LANGUAGE WRITTEN IN JS!!!',
+  glenz: 'GLENZ VECTORS! XOR ROTOZOOMER! TWISTERS! JUST LIKE MUM USED TO CODE... IN A SHADER LANGUAGE WRITTEN IN JS!!!',
   greets:
     'GREETINGS TO FAIRLIGHT * FUTURE CREW * SANITY * SPACEBALLS * KEFRENS * FARBRAUSCH * ANDROMEDA * MRDOOB AND THE THREE.JS CREW!!!',
   thanks: 'THANKS FOR WATCHING',
@@ -271,13 +272,20 @@ export class Demo {
         this.caption.u.y.value = 0.02;
         this.caption.u.size.value = 0.06;
       } else {
-        this.title.setMessage(this.msg.title);
-        this.title.center();
-        this.title.visible = true;
-        this.title.u.size.value = 0.11 + riser * 0.05;
-        this.title.u.y.value = -0.08;
-        this.title.u.amp.value = 0.02 + riser * 0.05;
-        this.title.u.zoom.value = 1 + riser * 0.15;
+        // "WELCOME TO THE" types out, then "MESMOSCENE" slams in half a bar later
+        this.typewriter(this.caption, this.msg.welcome, 6 * BAR, local, 16);
+        this.caption.u.y.value = 0.0;
+        this.caption.u.size.value = 0.06;
+        const tt = local - 6.5 * BAR;
+        if (tt >= 0) {
+          this.title.setMessage(this.msg.title);
+          this.title.center();
+          this.title.visible = true;
+          this.title.u.size.value = 0.12 + riser * 0.04 + Math.exp(-tt * 10) * 0.1;
+          this.title.u.y.value = -0.17;
+          this.title.u.amp.value = 0.02 + riser * 0.03;
+          this.title.u.zoom.value = 1 + riser * 0.12;
+        }
       }
     }
   }
