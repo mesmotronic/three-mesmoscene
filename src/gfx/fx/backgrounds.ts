@@ -10,6 +10,7 @@ import {
   fract,
   int,
   length,
+  max,
   mix,
   normalize,
   sin,
@@ -18,8 +19,9 @@ import {
   uniform,
   vec2,
   vec3,
+  vec4,
 } from 'three/tsl';
-import { U, copper, hash12, neon, rainbow, rot2, screenLayer, screenP } from '../shared';
+import { ST_BOX, U, copper, hash12, neon, rainbow, rot2, screenLayer, screenP } from '../shared';
 
 export function starfield(order = -100) {
   const u = { travel: uniform(0), alpha: uniform(1), spin: uniform(0), warp: uniform(0) };
@@ -97,4 +99,21 @@ export function rotozoom(order = -100) {
     return col.mul(0.42).mul(u.alpha);
   });
   return { mesh: screenLayer(shader(), { order }), u };
+}
+
+/**
+ * The Atari ST border: black everywhere outside the 320x200 picture. As U.win drops from 1 to 0
+ * the box grows past the screen edges, i.e. the borders get "removed" like Level 16's
+ * no-border screen in The Union Demo (1989).
+ */
+export function stBorder(order = 125) {
+  const shader = Fn(() => {
+    const P = screenP(false);
+    const hy = mix(float(0.55).div(U.fit), float(ST_BOX.h / 2), U.win); // fully open even on tall screens
+    const hx = mix(U.viewAspect.mul(0.5).add(0.05), float((ST_BOX.h * ST_BOX.aspect) / 2), U.win);
+    const cy = U.win.mul(ST_BOX.cy);
+    const outside = step(0, max(abs(P.x).sub(hx), abs(P.y.sub(cy)).sub(hy)));
+    return vec4(vec3(0), outside);
+  });
+  return { mesh: screenLayer(shader(), { order, transparent: true }) };
 }

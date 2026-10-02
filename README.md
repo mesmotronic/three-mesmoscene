@@ -40,7 +40,7 @@ While the demo loads, the modern Mesmotronic ident ("Make it Mesmotronic") is sh
 | Bars  | Part          | Effects                                                                                      |
 | ----- | ------------- | -------------------------------------------------------------------------------------------- |
 | 0–7   | Intro         | Warp starfield, copper bars, typewriter text, chrome logo dropping on the boom, LED spectrum analyser |
-| 8–15  | Plasma        | Palette-cycling plasma, raster-wobbling logo, sine scroller, copper bars when the clap kicks in |
+| 8–15  | Plasma        | An Atari ST tribute: palette-cycling plasma boxed in the ST's border, with a scroller in the lower border. On bar 12 the borders are blown away, in honour of Level 16's no-border screen in The Union Demo (1989), and the copper bars burst out to fullscreen |
 | 16–23 | Boing         | The Amiga Boing Ball bouncing on every kick, orbiting vector bobs, bouncing-letter scroller |
 | 24–31 | Tunnel        | Raymarched twisting tunnel, 32,768 GPU compute dots morphing into shapes and text, then exploding on the kick |
 | 32–39 | Glenz         | Nested glenz vectors, XOR rotozoomer, twisters, sine scroller                                 |

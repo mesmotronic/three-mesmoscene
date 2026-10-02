@@ -2,7 +2,9 @@ import * as THREE from 'three/webgpu';
 import {
   cos,
   dot,
+  float,
   fract,
+  mix,
   positionGeometry,
   sin,
   uniform,
@@ -34,6 +36,7 @@ export const U = {
   // screens narrower than 16:9 (phones in portrait) fit the 16:9 composition to their width
   fit: uniform(1), // min(1, aspect / DESIGN_ASPECT)
   viewAspect: uniform(16 / 9), // width of the visible area in layout units (height = 1)
+  win: uniform(0), // Atari ST border: 0 = fullscreen, 1 = squeezed into a bordered 320x200 box
   res: uniform(new THREE.Vector2(1280, 720)),
 };
 
@@ -65,8 +68,20 @@ export const hash12 = (p: V2): Node<'float'> => fract(sin(dot(p, vec2(127.1, 311
 
 export const DESIGN_ASPECT = 16 / 9;
 
-/** Centered layout coords: y in [-0.5, 0.5] (more when fitting a narrow screen), x scaled by aspect. */
-export const screenP = (): V2 => uv().sub(0.5).mul(vec2(U.aspect, 1)).div(U.fit);
+/** The Atari ST's low-res picture: 320x200 (1.6:1) inside a border, extra room at the bottom for a lower-border scroller. */
+export const ST_BOX = { h: 0.68, aspect: 1.6, cy: 0.07 };
+
+/**
+ * Centered layout coords: y in [-0.5, 0.5] (more when fitting a narrow screen), x scaled by aspect.
+ * Windowed layers shrink into the ST box as U.win goes to 1; pass false to stay full screen
+ * (e.g. a scroller running in the border).
+ */
+export const screenP = (windowed = true): V2 => {
+  const p = uv().sub(0.5).mul(vec2(U.aspect, 1)).div(U.fit);
+  if (!windowed) return p;
+  const scale = mix(float(1), float(ST_BOX.h), U.win);
+  return p.sub(vec2(0, U.win.mul(ST_BOX.cy))).div(scale);
+};
 
 // ---------------------------------------------------------------- layers
 

@@ -116,6 +116,7 @@ export interface TextStyle {
   grid?: number; // pixelation of the font (font pixels per glyph)
   hue?: number;
   order?: number;
+  windowed?: boolean; // false = ignore the ST box (e.g. a lower-border scroller)
 }
 
 export class TextLayer {
@@ -153,7 +154,7 @@ export class TextLayer {
 
     const atlasTex = atlas;
     const shader = Fn(() => {
-      const P = screenP();
+      const P = screenP(style.windowed ?? true);
       const S = u.size;
       const W = S.mul(CW).mul(u.zoom);
       const cx = P.x.sub(u.x).div(W).add(u.scroll);

@@ -8,7 +8,7 @@ import { DESIGN_ASPECT, U } from './shared';
 import { Post } from './post';
 import { TextLayer, messages } from './text';
 import { Logo } from './fx/logo';
-import { plasma, rotozoom, starfield } from './fx/backgrounds';
+import { plasma, rotozoom, starfield, stBorder } from './fx/backgrounds';
 import { kefrens, rasterBars, twisters } from './fx/rasters';
 import { metaballs, tunnel } from './fx/raymarch';
 import { Boing } from './fx/boing';
@@ -28,7 +28,7 @@ const TEXT = {
   presents: 'PRESENTS',
   welcome: 'WELCOME TO THE',
   title: 'MESMOSCENE',
-  plasma: 'YO!!! MESMOTRONIC IS BACK WITH A NEW CRACKTRO... 100% REALTIME WEBGPU + TSL, EVERY SOUND SYNTHESISED LIVE!!!',
+  noBorders: 'MESMOTRONIC IS BACK WITHOUT BORDERS!!! RESPECT TO LEVEL 16 AND THE UNION DEMO, 1989...',
   boing: 'THE BOING BALL LIVES!!! RESPECT TO THE AMIGA CREW OF 1984... NOW BOUNCING ON EVERY KICK DRUM!!!',
   dots1: '32768 DOTS',
   dots2: 'ON THE GPU',
@@ -56,12 +56,14 @@ export class Demo {
   private rasters = rasterBars();
   private twist = twisters();
   private kefrens = kefrens();
+  private border = stBorder();
   private boing = new Boing();
   private glenz = new Glenz();
   private dots = new Dots('WEBGPU', 'TSL');
   private logo = new Logo('MESMOTRONIC');
   private spectrum = new Spectrum();
-  private scroller = new TextLayer({ size: 0.13, y: -0.3, amp: 0.07, freq: 4, speed: 3, order: 100 });
+  // drawn above the ST border and never boxed, so it can run in the lower border
+  private scroller = new TextLayer({ size: 0.13, y: -0.3, amp: 0.07, freq: 4, speed: 3, order: 130, windowed: false });
   private title = new TextLayer({ size: 0.09, y: 0, amp: 0.02, freq: 6, speed: 4, rigid: 1, order: 101 });
   private caption = new TextLayer({ size: 0.06, y: -0.12, amp: 0.008, freq: 8, speed: 5, rigid: 1, grid: 16, order: 102 });
 
@@ -91,6 +93,7 @@ export class Demo {
       this.rasters.mesh,
       this.twist.mesh,
       this.kefrens.mesh,
+      this.border.mesh,
       this.logo.mesh,
       this.spectrum.mesh,
       this.scroller.mesh,
@@ -137,6 +140,7 @@ export class Demo {
     U.lead.value = lead;
     U.leadNote.value = leadEv ? (leadEv.note - 69) / 24 : 0;
     U.arp.value = tracks.arp.env(t, 12);
+    U.win.value = 0;
 
     const kc = tracks.kick.count(t);
     const kickHit = kc !== this.kickCount && this.kickCount >= 0 && tracks.kick.since(t) < 0.1;
@@ -154,7 +158,7 @@ export class Demo {
     P.flash.value = Math.min(1, crash * 0.45 + (si > 0 ? Math.exp(-edgeIn * 7) * 0.75 : 0));
     P.flashColor.value.set(1, 1, 1);
     P.ca.value = 0.002 + kick * 0.006 + snare * 0.004;
-    const rollGlitch = tracks.snare.since(t) < 0.12 && [7, 23, 31, 47].includes(Math.floor(bar)) ? snare : 0;
+    const rollGlitch = tracks.snare.since(t) < 0.12 && [7, 9, 23, 31, 47].includes(Math.floor(bar)) ? snare : 0;
     P.glitch.value = Math.max(rollGlitch * 0.8, cutIn * 0.8);
     P.fade.value = 1;
     P.invert.value = 0;
@@ -291,12 +295,26 @@ export class Demo {
   }
 
   private partPlasma(local: number, lbar: number, kick: number, snare: number) {
+    // Atari ST tribute: open boxed in the ST's border, then on beat 3 of the second bar
+    // the borders are blown away (The Union Demo, 1989)
+    const breakAt = 1.5 * BAR;
+    const since = local - breakAt;
+    const open = since < 0 ? 0 : 1 - Math.pow(1 - Math.min(1, since / 0.22), 3);
+    U.win.value = 1 - open;
+    this.border.mesh.visible = U.win.value > 0.0005;
+    if (since >= 0 && since < 0.6) {
+      const P = this.post.u;
+      P.flash.value = Math.max(P.flash.value, Math.exp(-since * 8) * 0.9);
+      P.glitch.value = Math.max(P.glitch.value, Math.exp(-since * 5));
+      P.pixel.value = Math.max(P.pixel.value, 1 + 14 * Math.exp(-since * 12));
+    }
+
     this.plasma.mesh.visible = true;
     this.plasma.u.copperMix.value = smooth(3.8, 4.2, lbar);
     this.plasma.u.bands.value = lbar < 4 ? 8 : 14;
     this.plasma.u.zoom.value = 3.2 + Math.sin(local * 0.3) * 0.8;
 
-    this.rasters.mesh.visible = lbar >= 4;
+    this.rasters.mesh.visible = since >= 0; // copper bars burst out with the borders
     this.rasters.u.alpha.value = 0.85;
     this.rasters.u.spread.value = 0.5;
     this.rasters.u.center.value = 0.0;
@@ -312,14 +330,16 @@ export class Demo {
     this.logo.u.grid.value = 420;
     this.logo.u.alpha.value = 1;
 
-    this.scroller.visible = true;
-    this.scroller.setMessage(this.msg.plasma);
+    // the scroller arrives as the borders go, paced to finish by the end of the part
+    this.scroller.visible = since >= 0;
+    this.scroller.setMessage(this.msg.noBorders);
+    this.scroller.u.rigid.value = 0;
+    this.scroller.u.freq.value = 4;
     this.scroller.u.size.value = 0.13;
     this.scroller.u.y.value = -0.27;
     this.scroller.u.amp.value = lbar < 4 ? 0.06 : 0.1;
-    this.scroller.u.freq.value = 4;
-    this.scroller.u.rigid.value = 0;
-    this.scroller.scrollAt(local, 8.5, U.viewAspect.value);
+    const view = U.viewAspect.value;
+    this.scroller.scrollAt(since, this.scroller.fitSpeed(8 * BAR - breakAt, view), view);
   }
 
   private partBoing(t: number, local: number, dt: number) {

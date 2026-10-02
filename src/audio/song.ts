@@ -122,6 +122,12 @@ export function buildSong(): NoteEvent[] {
       add('clap', bar, 4, 0, 1, 0.9);
       add('clap', bar, 12, 0, 1, 0.9);
     }
+    if (bar === 9) {
+      // one-beat fill into the ST border break on beat 3 (see the plasma part)
+      for (let s = 4; s < 8; s++) add('snare', bar, s, 0, 1, 0.45 + (s - 4) * 0.15);
+      add('crash', bar, 8);
+      add('boom', bar, 8);
+    }
     if (bar === 15 || bar === 39) {
       add('clap', bar, 4, 0, 1, 0.9);
       for (let s = 12; s < 16; s++) add('snare', bar, s, 0, 1, 0.5 + (s - 12) * 0.15);
