@@ -1,6 +1,4 @@
 :root {
-  --fg: #c8f;
-  --hi: #fff;
   /* 8x8 pixel font: keep sizes at multiples of 8px so every pixel lands on the grid */
   --font: 'Press Start 2P', ui-monospace, monospace;
 }
@@ -15,7 +13,7 @@ body {
   height: 100%;
   overflow: hidden;
   background: #000;
-  color: var(--fg);
+  color: #c8f;
   font-family: var(--font);
   font-synthesis: none;
   line-height: 1.75;
@@ -31,8 +29,8 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* sized by the renderer from innerWidth/innerHeight, which tracks mobile toolbars */
-canvas {
+/* the demo itself: sized by the renderer from innerWidth/innerHeight, which tracks mobile toolbars */
+#gfx {
   display: block;
   position: fixed;
   left: 0;
@@ -40,7 +38,7 @@ canvas {
   opacity: 0;
 }
 
-body.on canvas {
+body.on #gfx {
   opacity: 1;
   animation: crt-on 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
@@ -60,112 +58,21 @@ body.on canvas {
   }
 }
 
-/* --- loader: C64/Amiga tape-loading border stripes around a black "screen" */
-#loader {
+/* splash: modern ident -> time quake -> 1993 title screen (drawn in src/splash.ts) */
+#splash {
   position: fixed;
   inset: 0;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  padding: 6vmin;
-  background: repeating-linear-gradient(
-    0deg,
-    #e33 0 7px,
-    #3cf 7px 13px,
-    #fe3 13px 17px,
-    #93f 17px 26px,
-    #3e6 26px 31px
-  );
-  background-size: 100% 31px;
-  animation: stripes 0.12s steps(4) infinite;
-  z-index: 10;
-  transition: opacity 0.3s;
-}
-
-#loader.gone {
-  opacity: 0;
-  pointer-events: none;
-}
-
-@keyframes stripes {
-  to {
-    background-position: 0 31px;
-  }
-}
-
-.crt {
   width: 100%;
   height: 100%;
+  display: block;
   background: #000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2.4vmin;
-  text-align: center;
-  padding: 16px;
-  border-radius: 1.5vmin;
-  box-shadow: inset 0 0 8vmin rgba(150, 60, 255, 0.25);
+  z-index: 10;
+  transition: opacity 0.35s;
 }
 
-.logo {
-  font-size: 48px;
-  line-height: 1;
-  background: linear-gradient(#fff 0%, #9cf 45%, #320 50%, #f90 70%, #ffd 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(4px 4px 0 #602);
-}
-
-.sub {
-  color: var(--hi);
-  letter-spacing: 0.25em;
-  font-size: 16px;
-}
-
-#bar {
-  width: min(70vw, 520px);
-  height: 18px;
-  border: 2px solid var(--fg);
-  padding: 2px;
-}
-
-#bar > div {
-  height: 100%;
-  width: 0;
-  background: repeating-linear-gradient(90deg, #f3c 0 8px, #93f 8px 16px);
-  transition: width 0.1s linear;
-}
-
-#status,
-.small {
-  font-size: 8px;
-  letter-spacing: 0.1em;
-}
-
-.small {
-  opacity: 0.5;
-}
-
-#start {
-  visibility: hidden;
-  color: var(--hi);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 8px 12px;
-}
-
-#start.ready {
-  visibility: visible;
-}
-
-#start:hover {
-  color: #ff0;
-}
-
-.blink {
-  animation: blink 0.5s steps(1) infinite;
+#splash.gone {
+  opacity: 0;
+  pointer-events: none;
 }
 
 @keyframes blink {
@@ -174,28 +81,11 @@ body.on canvas {
   }
 }
 
-/* ready: stripes settle, like the loader finished */
-#loader:has(#start.ready) {
-  animation-duration: 2s;
-  animation-timing-function: steps(2);
-}
-
-body.guru #loader {
-  background: #000;
-  animation: none;
-}
-
-body.guru .crt {
-  border: 6px solid #f00;
-  color: #f00;
-  animation: blink 1s steps(1) infinite;
-}
-
 #hint {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 18px;
+  bottom: max(18px, env(safe-area-inset-bottom));
   text-align: center;
   font-size: 8px;
   letter-spacing: 0.1em;
@@ -209,29 +99,6 @@ body.guru .crt {
 
 #hint.show {
   opacity: 1;
-}
-
-.small.warn {
-  color: #f77;
-  opacity: 0.85;
-}
-
-/* small screens: step down whole pixel multiples */
-@media (max-width: 720px) {
-  .logo {
-    font-size: 32px;
-  }
-}
-
-@media (max-width: 460px) {
-  .logo {
-    font-size: 24px;
-  }
-
-  .sub,
-  #start {
-    font-size: 8px;
-  }
 }
 
 /* keyboard vs touch wording */
@@ -271,8 +138,4 @@ body.guru .crt {
 
 #osd.sticky {
   animation: blink 1s steps(1) infinite;
-}
-
-#hint {
-  bottom: max(18px, env(safe-area-inset-bottom));
 }

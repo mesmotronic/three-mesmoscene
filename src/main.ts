@@ -5,6 +5,7 @@ import { Demo } from './gfx/demo';
 import { Player, renderInWorker, type RenderedAudio } from './audio/player';
 import { BAR, DURATION, SECTIONS } from './audio/song';
 import { attachGestures } from './gestures';
+import { Splash } from './splash';
 
 const params = new URLSearchParams(location.search);
 const startAt = parseFloat(params.get('t') ?? '0') || 0;
@@ -14,23 +15,18 @@ const autostart = params.has('autostart');
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 
 const ui = {
-  loader: $<HTMLDivElement>('#loader'),
-  bar: $<HTMLDivElement>('#bar > div'),
-  status: $<HTMLDivElement>('#status'),
-  start: $<HTMLDivElement>('#start'),
   hint: $<HTMLDivElement>('#hint'),
   osd: $<HTMLDivElement>('#osd'),
-  progress(p: number, label: string) {
-    this.bar.style.width = `${Math.round(p * 100)}%`;
-    this.status.textContent = `${label} ${Math.round(p * 100)}%`;
-  },
 };
+const splash = new Splash($<HTMLCanvasElement>('#splash'));
+Object.assign(window, { __splash: splash });
 
 async function main() {
   const renderer = new THREE.WebGPURenderer({ antialias: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(params.has('hd') ? Math.min(devicePixelRatio, 2) : 1);
   renderer.setSize(innerWidth, innerHeight);
   renderer.setClearColor(0x000000, 1);
+  renderer.domElement.id = 'gfx';
   document.body.prepend(renderer.domElement);
   await renderer.init();
   const backend = (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'WEBGPU' : 'WEBGL2 FALLBACK';
@@ -46,7 +42,7 @@ async function main() {
   // depack the module (softsynth in a worker) while we warm up every shader
   let synthP = 0;
   let warmP = 0;
-  const report = () => ui.progress(silent ? warmP : synthP * 0.75 + warmP * 0.25, 'DEPACKING');
+  const report = () => splash.progress(silent ? warmP : synthP * 0.75 + warmP * 0.25);
   const audioPromise: Promise<RenderedAudio | null> = silent
     ? Promise.resolve(null)
     : renderInWorker((p) => {
@@ -65,7 +61,7 @@ async function main() {
     report();
   }
   const audio = await audioPromise;
-  ui.progress(1, 'READY');
+  splash.progress(1);
 
   // ------------------------------------------------------------- clock
   let player: Player | null = null;
@@ -182,9 +178,9 @@ async function main() {
   };
 
   const start = async () => {
-    ui.loader.onclick = null;
+    splash.onStart = null;
     removeEventListener('keydown', keyStart);
-    ui.loader.classList.add('gone');
+    splash.hide();
     document.body.classList.add('on');
     if (audio) {
       // iOS mutes Web Audio when the ring/silent switch is on unless we ask for playback
@@ -235,19 +231,17 @@ async function main() {
     },
   });
 
-  ui.status.textContent = `${backend} READY`;
-  ui.start.classList.add('ready');
   if (autostart) {
     void start();
   } else {
-    // click or tap anywhere on the loader
-    ui.loader.onclick = () => void start();
+    // modern ident -> time quake -> 1993 title screen, then click/tap anywhere or Space to start
+    await splash.reveal(backend);
+    splash.onStart = () => void start();
     addEventListener('keydown', keyStart);
   }
 }
 
 main().catch((err) => {
   console.error(err);
-  ui.status.textContent = `GURU MEDITATION #${String(err?.message ?? err).toUpperCase()}`;
-  document.body.classList.add('guru');
+  splash.guru(String(err?.message ?? err));
 });

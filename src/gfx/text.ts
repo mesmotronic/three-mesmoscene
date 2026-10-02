@@ -222,6 +222,12 @@ export class TextLayer {
     this.u.scroll.value = t * charsPerSecond - aspect / 2 / W;
   }
 
+  /** Speed (chars/second) that carries the whole message across and off the screen in `seconds`. */
+  fitSpeed(seconds: number, aspect: number) {
+    const W = this.u.size.value * CW * this.u.zoom.value;
+    return (this.u.len.value + aspect / W) / seconds;
+  }
+
   set visible(v: boolean) {
     this.mesh.visible = v;
   }

@@ -34,7 +34,7 @@ const TEXT = {
   dots2: 'ON THE GPU',
   glenz: 'GLENZ VECTORS! XOR ROTOZOOMER! TWISTERS! JUST LIKE MUM USED TO CODE... IN A SHADER LANGUAGE WRITTEN IN JS!!!',
   greets:
-    'GREETINGS TO FAIRLIGHT * FUTURE CREW * SANITY * SPACEBALLS * KEFRENS * FARBRAUSCH * ANDROMEDA * MRDOOB AND THE THREE.JS CREW!!!',
+    'GREETINGS TO AUTOMATION * POMPEY PIRATES * MEDWAY BOYS * D-BUG * THE LOST BOYS * THE CAREBEARS * DELTA FORCE * SPACEBALLS * KEFRENS * MRDOOB AND EVERY THREE.JS CONTRIBUTOR!!!',
   thanks: 'THANKS FOR WATCHING',
   again: '...AND AGAIN FROM THE TOP!',
 };
@@ -494,7 +494,9 @@ export class Demo {
     this.scroller.u.freq.value = 3.5;
     this.scroller.u.speed.value = 2.5;
     this.scroller.u.rigid.value = 0;
-    this.scroller.scrollAt(local, 10, U.viewAspect.value);
+    // pace the greetings so the whole list has scrolled past before the fade to black
+    const greetSpeed = Math.max(10, this.scroller.fitSpeed(7 * BAR, U.viewAspect.value));
+    this.scroller.scrollAt(local, greetSpeed, U.viewAspect.value);
 
     if (lbar >= 4 && lbar < 6) this.typewriter(this.title, this.msg.thanks, 4 * BAR, local, 12);
     else if (lbar >= 6) this.typewriter(this.title, this.msg.again, 6 * BAR, local, 12);

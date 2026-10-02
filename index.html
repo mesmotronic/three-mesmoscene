@@ -9,24 +9,23 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Mesmoscene" />
+    <meta name="color-scheme" content="dark" />
     <title>Welcome to the Mesmoscene</title>
+    <style>
+      /* critical styles: black from the first paint, UI text hidden until the app's CSS takes over */
+      html,
+      body {
+        margin: 0;
+        background: #000;
+      }
+      #hint,
+      #osd {
+        opacity: 0;
+      }
+    </style>
   </head>
   <body>
-    <div id="loader">
-      <div class="crt">
-        <div class="logo">MESMOTRONIC</div>
-        <div class="sub">WELCOME TO THE MESMOSCENE</div>
-        <div id="bar"><div></div></div>
-        <div id="status">INITIALISING</div>
-        <div id="start">
-          <span class="blink">&gt;&gt;&gt;</span>
-          <span class="kbd">CLICK OR PRESS SPACE TO START</span><span class="touch">TAP TO START</span>
-          <span class="blink">&lt;&lt;&lt;</span>
-        </div>
-        <div class="small">HEADPHONES OR BIG SPEAKERS RECOMMENDED</div>
-        <div class="small warn">WARNING: CONTAINS FLASHING LIGHTS AND STROBE EFFECTS</div>
-      </div>
-    </div>
+    <canvas id="splash" role="button" aria-label="Mesmotronic. Loading."></canvas>
     <div id="hint">
       <span class="kbd">SPACE: PAUSE &nbsp; LEFT/RIGHT: PARTS &nbsp; F: FULLSCREEN</span>
       <span class="touch">TAP: PAUSE &nbsp; SWIPE LEFT/RIGHT: PARTS &nbsp; SWIPE UP/DOWN: FULLSCREEN</span>

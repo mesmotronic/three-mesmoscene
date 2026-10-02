@@ -29,6 +29,10 @@ URL parameters:
 | `?silent`    | Skip audio (visuals run on a wall clock)                                                   |
 | `?autostart` | Skip the start screen (browsers may block the audio)                                       |
 
+## The splash
+
+While the demo loads, the modern Mesmotronic ident ("Make it Mesmotronic") is shown on black. Once loading finishes, a two-second "time quake" tears it apart: it jitters, colour-splits, tears and pixelates backwards in time. It lands on the 1993 title screen, where each pixel-font letter of the retro logo sits exactly where its modern letter was. The prompt then blinks at the bottom like an arcade's INSERT COIN. If your device asks for reduced motion, you get a simple crossfade instead.
+
 ## The show
 
 130 BPM, 56 bars, seven parts:
@@ -55,7 +59,9 @@ A Web Worker renders the whole song to PCM while the loader "depacks", then play
 
 ```
 src/
-  main.ts               boot, loader, clock, keyboard + touch actions
+  main.ts               boot, clock, keyboard + touch actions
+  splash.ts             modern ident -> time quake -> retro title screen
+  assets/mesmotronic.svg  the Mesmotronic logo
   gestures.ts           tap / swipe recogniser
   audio/song.ts         arrangement + patterns (shared by synth and visuals)
   audio/synth.ts        the softsynth
